@@ -1,0 +1,82 @@
+:root{
+    --text-color: #a06807;
+    --button-color: #a06807;
+    --button-color-hover: #734b06;
+    --bg-color: #ece8e3;
+    --bg2-color:#66461D;
+}
+
+*{
+    box-sizing: border-box;
+}
+
+/* Header Style */
+.navbar-brand
+{
+    font-size: 2.5rem !important;
+}
+.navbar-brand span
+{
+    color: var(--text-color);
+}
+.nav-link
+{
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+.nav-link:hover{
+    color: var(--text-color);
+}
+
+
+/* Home Style */
+.content_Home{
+   background-color: var(--bg-color); 
+    min-height: 90vh;
+}
+.home_title
+{
+    color: var(--text-color);
+}
+.btn_Feature{
+    background-color: var(--button-color);
+    border-style: none;
+    border-radius: 5px;
+    color: #fff;
+}
+.btn_Feature a{
+    color: #fff;
+    font-size: 1rem;
+}
+.btn_Feature:hover{
+    background-color: var(--button-color-hover);
+    color: #fff;
+    transition: 0.3s;
+}
+
+/* Feature Style */
+.content_Features{
+    background-color: #fff; 
+     min-height: 100vh;
+ }
+
+
+
+/* Add, Delete, Upadte , Read delete Book*/
+.Books_title{
+    color: var(--text-color);
+}
+
+.CURD_Books
+{
+    min-height: 90vh;
+    background-color:  var(--bg-color)
+    
+}
+
+
+/* Footer Style */
+.footer{
+    background-color: var(--bg2-color);
+    color: #fff;
+}
