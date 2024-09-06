@@ -1,6 +1,6 @@
 const mysql = require('mysql');
-const { IncomingMessage, request } = require('http');
 
+// Create Database Connection
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -8,70 +8,74 @@ const db = mysql.createConnection({
   database: process.env.DB_NAME
 });
 
+// Connect to Database
 db.connect(function(err) {
   if (err) throw err;
   console.log('Successfully Connected to Database');
 });
 
-export default async function handler(req, res) {
-  switch (req.method) {
-    case 'GET':
-      const query = 'SELECT * FROM books';
-      db.query(query, (err, results) => {
-        if (err) {
-          console.error('Error fetching books:', err);
-          return res.status(500).json({ error: 'Database error' });
-        }
-        res.status(200).json(results);
-      });
-      break;
-    
-    case 'POST':
-      const { title, author, no_of_pages, published_at } = req.body;
-      const insertQuery = 'INSERT INTO books (title, author, no_of_pages, published_at) VALUES (?, ?, ?, ?)';
-      db.query(insertQuery, [title, author, no_of_pages, published_at], (err, results) => {
-        if (err) {
-          console.error('Error adding book:', err.message);
-          return res.status(500).json({ error: 'Database error', details: err.message });
-        }
-        res.status(201).json({ id: results.insertId });
-      });
-      break;
-      
-    case 'PUT':
-      const bookId = req.query.id;
-      const { title: updateTitle, author: updateAuthor, no_of_pages: updateNoOfPages, published_at: updatePublishedAt } = req.body;
-      const updateQuery = 'UPDATE books SET title = ?, author = ?, no_of_pages = ?, published_at = ? WHERE id = ?';
-      db.query(updateQuery, [updateTitle, updateAuthor, updateNoOfPages, updatePublishedAt, bookId], (err, results) => {
-        if (err) {
-          console.error('Error updating book:', err);
-          return res.status(500).json({ error: 'Internal Server Error' });
-        }
-        if (results.affectedRows === 0) {
-          return res.status(404).json({ error: 'Book not found' });
-        }
-        res.status(200).json({ message: 'Book updated successfully' });
-      });
-      break;
+// Create Express app
+const express = require('express');
+const app = express();
 
-    case 'DELETE':
-      const deleteBookId = req.query.id;
-      const deleteQuery = 'DELETE FROM books WHERE id = ?';
-      db.query(deleteQuery, [deleteBookId], (err, results) => {
+app.use(express.json());
+
+// Read Books
+app.get('/', (req, res) => {
+  const query = 'SELECT * FROM books';
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching books:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(results);
+  });
+});
+
+// Adding Books
+app.post('/', (req, res) => {
+    const { title, author, no_of_pages, published_at } = req.body;
+    const query = 'INSERT INTO books (title, author, no_of_pages, published_at) VALUES (?, ?, ?, ?)';
+    db.query(query, [title, author, no_of_pages, published_at], (err, results) => {
+      if (err) {
+        console.error('Error adding book:', err.message);
+        return res.status(500).json({ error: 'Database error', details: err.message });
+      }
+      res.json({ id: results.insertId });
+    });
+});
+
+// Update Book
+app.put('/:id', (req, res) => {
+    const bookId = req.params.id;
+    const { title, author, no_of_pages, published_at } = req.body;
+    const query = 'UPDATE books SET title = ?, author = ?, no_of_pages = ?, published_at = ? WHERE id = ?';
+    db.query(query, [title, author, no_of_pages, published_at, bookId], (err, results) => {
         if (err) {
-          console.error('Error deleting book:', err);
-          return res.status(500).json({ error: 'Internal Server Error' });
+            console.error('Error updating book:', err);
+            return res.status(500).json({ error: 'Internal Server Error' });
         }
         if (results.affectedRows === 0) {
-          return res.status(404).json({ error: 'Book not found' });
+            return res.status(404).json({ error: 'Book not found' });
         }
-        res.status(200).json({ message: 'Book deleted successfully' });
-      });
-      break;
-      
-    default:
-      res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
-      res.status(405).end(`Method ${req.method} Not Allowed`);
-      break;
-  }
-}
+        res.json({ message: 'Book updated successfully' });
+    });
+});
+
+// Delete Book
+app.delete('/:id', (req, res) => {
+    const bookId = req.params.id;
+    const query = 'DELETE FROM books WHERE id = ?';
+    db.query(query, [bookId], (err, results) => {
+        if (err) {
+            console.error('Error deleting book:', err);
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'Book not found' });
+        }
+        res.json({ message: 'Book deleted successfully' });
+    });
+});
+
+module.exports = app;
