@@ -33,7 +33,7 @@ const Update = () => {
 
   const handleSaveClick = async () => {
     try {
-      const response = await fetch(`http://localhost:8081/books/${editId}`, {
+      const response = await fetch(`https://my-full-stack-app-one.vercel.app/api/books/${editId}`, {
         method: 'PUT',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editData)
