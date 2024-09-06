@@ -12,7 +12,7 @@ const Update = () => {
 
   const fetchTasks = async () => {
     try {
-      const response = await fetch('http://localhost:8081/books');
+      const response = await fetch('https://my-full-stack-app-one.vercel.app/api/books');
       if (!response.ok) throw new Error('Network Problem');
       const data = await response.json();
       setBooks(data);
